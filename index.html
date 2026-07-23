@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a6949">
+  <title>VERRA - Food Safety Inspection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', 'Noto Naskh Arabic', sans-serif; background: #f0f7f4; color: #1a4d36; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+    /* Header */
+    .header { background: linear-gradient(135deg, #1a6949 0%, #0f4d34 100%); color: white; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    .header-left h1 { font-size: 32px; font-weight: 800; letter-spacing: 6px; }
+    .header-left p { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+    .header-right { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 12px 20px; border-radius: 12px; }
+    .header-right button { background: none; border: none; color: white; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .header-right .date { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+    .header-right .location { font-size: 11px; opacity: 0.6; margin-top: 2px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Progress Bar */
+    .progress-bar { background: white; border-bottom: 1px solid #c8ddd3; padding: 15px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .progress-content { max-width: 1200px; margin: 0 auto; }
+    .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+    .progress-stats { display: flex; gap: 20px; }
+    .progress-stat { font-size: 14px; font-weight: 600; }
+    .progress-stat span { color: #64748b; }
+    .progress-actions { display: flex; gap: 8px; }
+    .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+    .btn-primary { background: #145f41; color: white; }
+    .btn-primary:hover { background: #0f4d34; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-secondary { background: white; color: #475569; border: 1px solid #c8ddd3; }
+    .btn-secondary:hover { background: #e8f5ee; }
+    .progress-track { background: #c8ddd3; height: 8px; border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .alert { margin-top: 10px; padding: 10px 15px; border-radius: 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+
+    /* Tabs */
+    .tabs { max-width: 1200px; margin: 0 auto; padding: 20px 20px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+    .tab { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; background: white; color: #64748b; border: 1px solid #c8ddd3; transition: all 0.2s; }
+    .tab.active { background: #145f41; color: white; border-color: #145f41; }
+    .tab:hover:not(.active) { background: #e8f5ee; }
+    .tabs-spacer { flex: 1; }
+
+    /* Sections */
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .section { background: white; border-radius: 12px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #c8ddd3; }
+    .section-header { background: #e8f5ee; padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #c8ddd3; transition: background 0.2s; }
+    .section-header:hover { background: #e8f5ee; }
+    .section-header-left { display: flex; align-items: center; gap: 15px; }
+    .score-badge { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; }
+    .section-title h3 { font-size: 16px; font-weight: 700; color: #1a4d36; }
+    .section-title p { font-size: 13px; color: #64748b; direction: rtl; font-family: 'Noto Naskh Arabic', serif; }
+    .section-header-right { display: flex; align-items: center; gap: 15px; }
+    .section-counts { display: flex; gap: 12px; font-size: 13px; }
+    .count-yes { color: #16a34a; font-weight: 600; }
+    .count-no { color: #dc2626; font-weight: 600; }
+    .count-na { color: #94a3b8; font-weight: 600; }
+    .section-progress { font-size: 14px; color: #64748b; font-weight: 500; }
+    .section-arrow { font-size: 20px; color: #94a3b8; transition: transform 0.3s; }
+    .section-arrow.expanded { transform: rotate(180deg); }
+
+    /* Items */
+    .items { border-top: 1px solid #c8ddd3; }
+    .item { padding: 16px 20px; border-bottom: 1px solid #e8f5ee; }
+    .item:last-child { border-bottom: none; }
+    .item-content { display: flex; gap: 20px; align-items: flex-start; }
+    .item-main { flex: 1; min-width: 0; }
+    .item-text { margin-bottom: 10px; }
+    .item-en { font-weight: 500; font-size: 14px; color: #1a4d36; }
+    .item-ar { color: #64748b; font-size: 13px; margin-top: 4px; direction: rtl; font-family: 'Noto Naskh Arabic', serif; }
+    .item-id { color: #94a3b8; font-weight: 400; margin-right: 4px; }
+
+    /* Notes */
+    .notes-area { margin: 10px 0; }
+    .notes-input { width: 100%; padding: 10px 12px; border: 1px solid #fde68a; border-radius: 8px; font-size: 13px; background: #fefce8; resize: vertical; min-height: 60px; font-family: inherit; }
+    .notes-input:focus { outline: none; border-color: #b0ae63; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1); }
+    .notes-input::placeholder { color: #d4d4d8; }
+
+    /* Photos */
+    .photos-area { margin: 10px 0; }
+    .photos-list { display: flex; gap: 8px; flex-wrap: wrap; }
+    .photo-item { position: relative; width: 80px; height: 80px; }
+    .photo-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #c8ddd3; }
+    .photo-delete { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; background: #ef4444; color: white; border-radius: 50%; border: 2px solid white; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .photo-item:hover .photo-delete { opacity: 1; }
+
+    /* Buttons */
+    .item-controls { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+    .answer-buttons { display: flex; gap: 6px; }
+    .answer-btn { width: 50px; height: 36px; border-radius: 8px; border: none; cursor: pointer; font-size: 11px; font-weight: 700; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .answer-btn-yes { background: #e8f5ee; color: #94a3b8; }
+    .answer-btn-yes.active { background: #4ade80; color: white; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3); }
+    .answer-btn-no { background: #e8f5ee; color: #94a3b8; }
+    .answer-btn-no.active { background: #ef4444; color: white; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3); }
+    .answer-btn-na { background: #e8f5ee; color: #94a3b8; }
+    .answer-btn-na.active { background: #64748b; color: white; }
+    .answer-btn:hover:not(.active) { background: #c8ddd3; }
+
+    /* Photo Upload */
+    .photo-upload { position: relative; }
+    .photo-upload input { display: none; }
+    .photo-upload-label { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #eff6ff; color: #145f41; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; }
+    .photo-upload-label:hover { background: #d1e7dd; }
+    .photo-upload-label.has-photos { background: #d1e7dd; }
+
+    /* Floating Score */
+    .floating-score { position: fixed; bottom: 24px; right: 24px; width: 72px; height: 72px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 4px solid white; transition: transform 0.2s; z-index: 50; }
+    .floating-score:hover { transform: scale(1.05); }
+    .floating-score .score-label { font-size: 10px; font-weight: 600; opacity: 0.9; }
+    .floating-score .score-value { font-size: 22px; }
+
+    /* Footer */
+    .footer { background: #0f4d34; color: #94a3b8; text-align: center; padding: 24px; margin-top: 40px; }
+    .footer p { font-size: 13px; }
+    .footer .copyright { font-size: 11px; opacity: 0.6; margin-top: 4px; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal-content { background: white; border-radius: 16px; max-width: 400px; width: 100%; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .modal-input { width: 100%; padding: 12px 16px; border: 1px solid #c8ddd3; border-radius: 12px; font-size: 14px; margin-bottom: 16px; }
+    .modal-input:focus { outline: none; border-color: #145f41; box-shadow: 0 0 0 3px rgba(20, 95, 65, 0.1); }
+    .modal-actions { display: flex; justify-content: flex-end; }
+
+    /* Report */
+    .report-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; overflow-y: auto; }
+    .report-close { position: fixed; top: 20px; right: 20px; background: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 201; }
+    .report-content { background: white; max-width: 900px; margin: 20px auto; padding: 40px; border-radius: 16px; }
+    .report-header { text-align: center; padding: 30px 0; border-bottom: 4px solid #145f41; margin-bottom: 30px; }
+    .report-header h1 { color: #145f41; font-size: 28px; font-weight: 700; }
+    .report-header h2 { color: #64748b; font-size: 18px; font-weight: 500; margin-top: 8px; }
+    .report-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; padding: 20px; background: #e8f5ee; border-radius: 12px; }
+    .report-info-item { display: flex; gap: 10px; font-size: 14px; }
+    .report-info-item .label { font-weight: 600; color: #475569; min-width: 100px; }
+    .report-score { text-align: center; padding: 25px; background: linear-gradient(135deg, #1a6949 0%, #0f4d34 100%); color: white; border-radius: 16px; margin-bottom: 30px; }
+    .report-score .value { font-size: 64px; font-weight: 800; }
+    .report-section { background: white; border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #c8ddd3; }
+    .report-section-header { background: #e8f5ee; padding: 15px 20px; border-bottom: 2px solid #c8ddd3; display: flex; justify-content: space-between; align-items: center; }
+    .report-section-header h3 { color: #145f41; font-size: 16px; font-weight: 700; }
+    .report-item { padding: 15px 20px; border-bottom: 1px solid #e8f5ee; }
+    .report-item:last-child { border-bottom: none; }
+    .report-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .report-item-text { flex: 1; }
+    .report-item-en { font-weight: 500; font-size: 14px; }
+    .report-item-ar { color: #64748b; font-size: 13px; margin-top: 4px; direction: rtl; font-family: 'Noto Naskh Arabic', serif; }
+    .report-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge-yes { background: #dcfce7; color: #166534; }
+    .badge-no { background: #fee2e2; color: #991b1b; }
+    .badge-na { background: #e8f5ee; color: #475569; }
+    .badge-missing { background: #fef3c7; color: #92400e; }
+    .report-photos { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .report-photos img { width: 120px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid #c8ddd3; }
+    .report-notes { padding: 10px; background: #fefce8; border-radius: 8px; margin-top: 10px; font-size: 13px; color: #713f12; border-right: 3px solid #b0ae63; }
+    .report-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 30px 0; }
+    .report-summary-card { text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #c8ddd3; }
+    .report-summary-card .number { font-size: 32px; font-weight: 700; }
+    .report-summary-card .label { color: #64748b; font-size: 14px; }
+    .report-footer { text-align: center; padding: 30px; color: #94a3b8; font-size: 12px; margin-top: 40px; border-top: 1px solid #c8ddd3; }
+
+    /* Photos Page */
+    .photos-page { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .photos-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .photos-title { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .photos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+    .photo-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #c8ddd3; transition: box-shadow 0.2s; }
+    .photo-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .photo-card-image { position: relative; height: 180px; }
+    .photo-card-image img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-card-delete { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; background: #ef4444; color: white; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    .photo-card:hover .photo-card-delete { opacity: 1; }
+    .photo-card-info { padding: 12px; }
+    .photo-card-info p { font-size: 13px; color: #64748b; margin: 2px 0; }
+    .photo-card-info .section-name { font-weight: 600; color: #145f41; }
+    .no-photos { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; border: 1px solid #c8ddd3; }
+    .no-photos-icon { font-size: 48px; margin-bottom: 16px; }
+    .no-photos h3 { font-size: 18px; color: #64748b; margin-bottom: 8px; }
+    .no-photos p { font-size: 14px; color: #94a3b8; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content { flex-direction: column; text-align: center; }
+      .item-content { flex-direction: column; }
+      .item-controls { flex-direction: row; width: 100%; justify-content: space-between; }
+      .report-info { grid-template-columns: 1fr; }
+      .report-summary { grid-template-columns: 1fr; }
+      .tabs { overflow-x: auto; flex-wrap: nowrap; }
+      .section-header-left { gap: 10px; }
+      .score-badge { width: 40px; height: 40px; font-size: 12px; }
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+      .report-overlay { position: static; background: white; overflow: visible; }
+      .report-content { margin: 0; max-width: 100%; }
+    }
+
+    /* Report buttons always visible */
+    .report-buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 201;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      max-width: calc(100% - 40px);
+      justify-content: flex-end;
+    }
+
+    .report-buttons .btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .report-buttons {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        justify-content: center;
+      }
+      .report-buttons .btn {
+        padding: 8px 16px;
+        font-size: 12px;
+        flex: 1;
+        min-width: 80px;
+      }
+    }
+  
+    /* Score background colors - Green Theme */
+    .bg-green-500 { background: #4ade80 !important; }
+    .bg-yellow-600 { background: #b0ae63 !important; }
+    .bg-red-500 { background: #ef4444 !important; }
+    </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+
+    const { useState, useCallback, useEffect, useRef } = React;
+
+    // ===== DATA =====
+    const inspectionData = [
+      {
+        id: 'receiving',
+        titleEn: 'Receiving & Storage',
+        titleAr: 'الاستلام والتخزين',
+        items: [
+          { id: 1, en: 'All incoming food items are checked for temperature upon delivery', ar: 'يتم فحص جميع المواد الغذائية الواردة لدرجة الحرارة عند التسليم' },
+          { id: 2, en: 'Frozen food temperature does not exceed -18°C at delivery', ar: 'لا تتجاوز درجة حرارة المجمدات -18°م عند الاستلام' },
+          { id: 3, en: 'Chilled food temperature does not exceed 4°C at delivery', ar: 'لا تتجاوز درجة حرارة المبردات 4°م عند الاستلام' },
+          { id: 4, en: 'High-risk foods are checked with a calibrated thermometer', ar: 'فحص الأغذية عالية الخطورة بمقياس حرارة معاير' },
+          { id: 5, en: 'Food is transferred to storage within 20 minutes (chilled items)', ar: 'نقل الأغذية المبردة إلى التخزين خلال 20 دقيقة' },
+          { id: 6, en: 'All products comply with Saudi Standard Specifications', ar: 'جميع المنتجات مطابقة للمواصفات القياسية السعودية' },
+          { id: 7, en: 'Fresh meat is from approved abattoirs with official stamp', ar: 'اللحوم الطازجة من مسالخ معتمدة ومختومة رسمياً' },
+          { id: 8, en: 'Packaging is intact and free from pests or damage', ar: 'التعبئة سليمة وخالية من الآفات أو التلف' },
+          { id: 9, en: 'Expiry dates are checked and recorded upon receipt', ar: 'التحقق من تواريخ الصلاحية وتسجيلها عند الاستلام' },
+          { id: 10, en: 'Storage areas are clean, dry, and well-ventilated', ar: 'أماكن التخزين نظيفة وجافة وجيدة التهوية' },
+        ]
+      },
+      {
+        id: 'preparation',
+        titleEn: 'Food Preparation',
+        titleAr: 'تحضير الأغذية',
+        items: [
+          { id: 11, en: 'Review and follow up on the dough preparation process', ar: 'مراجعة ومتابعة بروسيس تحضير العجين' },
+          { id: 12, en: 'Follow-up on the dough balling process', ar: 'متابعة بروسيس تكوير العجين' },
+          { id: 13, en: 'Review of the sauce preparation process', ar: 'مراجعة تحضير الصوصات' },
+          { id: 14, en: 'Raw and cooked foods are prepared in separate areas', ar: 'تحضير الأغذية النيئة والمطبوخة في مناطق منفصلة' },
+          { id: 15, en: 'Cross-contamination is prevented during preparation', ar: 'منع التلوث المتبادل أثناء التحضير' },
+          { id: 16, en: 'Food is thawed in refrigerator or under cold running water', ar: 'إذابة الأغذية في الثلاجة أو تحت ماء بارد جارٍ' },
+          { id: 17, en: 'Prepared food is not left at room temperature for more than 2 hours', ar: 'عدم ترك الأغذية المحضرة في درجة حرارة الغرفة أكثر من ساعتين' },
+          { id: 18, en: 'Cooking temperatures reach safe internal levels (≥75°C)', ar: 'وصول درجات حرارة الطهي إلى المستويات الآمنة (≥75°م)' },
+          { id: 19, en: 'Reheating is done to minimum 75°C core temperature', ar: 'إعادة التسخين إلى درجة حرارة لا تقل عن 75°م في المركز' },
+          { id: 20, en: 'Color-coded cutting boards are used for different food types', ar: 'استخدام لوحات تقطيع ملونة لأنواع مختلفة من الأغذية' },
+          { id: 21, en: 'Food handlers wear gloves when touching ready-to-eat food', ar: 'ارتداء القفازات عند لمس الأغذية الجاهزة للأكل' },
+        ]
+      },
+      {
+        id: 'product_quality',
+        titleEn: 'Product Quality',
+        titleAr: 'جودة المنتج',
+        items: [
+          { id: 22, en: 'Inspecting the final product quality before it goes out to the customer. (Pasta Section)', ar: 'معاينة جودة المنتج النهائي قبل خروجه للزبون. (قسم الباستا)' },
+          { id: 23, en: 'Inspecting the final product quality before it goes out to the customer. (Pizza Section)', ar: 'معاينة جودة المنتج النهائي قبل خروجه للزبون. (قسم البيتزا)' },
+          { id: 24, en: 'Following up with chefs on uploading a photo of the final product to WhatsApp at all branches', ar: 'متابعة الشيفات في رفع صورة المنتج النهائي على الوتساب في كل الفروع' },
+        ]
+      },
+      {
+        id: 'facility',
+        titleEn: 'Facility & Environment',
+        titleAr: 'المنشأة والبيئة',
+        items: [
+          { id: 25, en: 'Facility is located away from pollution sources', ar: 'المنشأة بعيدة عن مصادر التلوث' },
+          { id: 26, en: 'No cracks in walls, floors, or ceilings', ar: 'خلو الجدران والأرضيات والأسقف من التشققات' },
+          { id: 27, en: 'Doors are airtight and close automatically', ar: 'الأبواب محكمة الإغلاق وتغلق تلقائياً' },
+          { id: 28, en: 'Windows have intact metal mesh screens', ar: 'النوافذ مزودة بشبكات معدنية سليمة' },
+          { id: 29, en: 'Proper slope for drainage in all areas', ar: 'ميل مناسب للصرف في جميع المناطق' },
+          { id: 30, en: 'Air conditioning is efficient and functional', ar: 'أجهزة التكييف فعالة وتعمل بشكل صحيح' },
+          { id: 31, en: 'Smoke extractors installed above ovens and grills', ar: 'وجود شفاطات دخان فوق الأفران والشوايات' },
+          { id: 32, en: 'Adequate lighting in all food handling areas', ar: 'إضاءة كافية في جميع مناطق التعامل مع الأغذية' },
+          { id: 33, en: 'Floors are waterproof, non-slip, and easy to clean', ar: 'الأرضيات مقاومة للماء وغير زلقة وسهلة التنظيف' },
+        ]
+      },
+      {
+        id: 'cleaning',
+        titleEn: 'Cleaning & Sanitation',
+        titleAr: 'التنظيف والتعقيم',
+        items: [
+          { id: 34, en: 'Cleaning schedule is documented and followed', ar: 'جدول التنظيف موثق ويتم اتباعه' },
+          { id: 35, en: 'Sanitizers are food-safe and used at correct concentrations', ar: 'المطهرات آمنة على الأغذية وتستخدم بالتركيزات الصحيحة' },
+          { id: 36, en: 'Equipment is cleaned and sanitized after each use', ar: 'تنظيف وتعقيم المعدات بعد كل استخدام' },
+          { id: 37, en: 'Deep cleaning is performed daily for all food contact surfaces', ar: 'التنظيف العميق يومياً لجميع الأسطح الملامسة للأغذية' },
+          { id: 38, en: 'Waste bins have foot-operated lids and are emptied regularly', ar: 'حاويات النفايات ذات أغطية تعمل بالقدم وتفرغ بانتظام' },
+          { id: 39, en: 'Waste disposal prevents contamination of water or food', ar: 'التخلص من النفايات يمنع تلوث المياه أو الأغذية' },
+          { id: 40, en: 'Pest control contract with specialized company is active', ar: 'عقد مكافحة آفات ساري مع شركة متخصصة' },
+          { id: 41, en: 'No evidence of rodents or insects in the facility', ar: 'عدم وجود دلائل على القوارض أو الحشرات في المنشأة' },
+        ]
+      },
+      {
+        id: 'personal',
+        titleEn: 'Personal Hygiene',
+        titleAr: 'النظافة الشخصية',
+        items: [
+          { id: 42, en: 'All food handlers wear clean uniforms and hair covers', ar: 'جميع العاملين يرتدون زياً نظيفاً وأغطية للشعر' },
+          { id: 43, en: 'Workers wear mouth masks in perishable food areas', ar: 'ارتداء الكمامات في مناطق الأغذية القابلة للتلف' },
+          { id: 44, en: 'Hand washing stations have soap, hot water, and disposable towels', ar: 'محطات غسل اليدين مزودة بالصابون والماء الساخن والمناشف الورقية' },
+          { id: 45, en: 'Workers wash hands before handling food and after breaks', ar: 'غسل اليدين قبل التعامل مع الأغذية وبعد الاستراحات' },
+          { id: 46, en: 'No jewelry, watches, or nail polish worn by food handlers', ar: 'عدم ارتداء المجوهرات أو الساعات أو طلاء الأظافر' },
+          { id: 47, en: 'Pre-employment health check-ups by approved providers', ar: 'فحوصات طبية قبل التوظيف من جهات معتمدة' },
+          { id: 48, en: 'Annual routine health check-ups for all food handlers', ar: 'فحوصات طبية روتينية سنوية لجميع العاملين' },
+          { id: 49, en: 'Workers with contagious diseases are excluded until recovery', ar: 'استبعاد العاملين المصابين بالأمراض المعدية حتى الشفاء' },
+        ]
+      },
+      {
+        id: 'equipment',
+        titleEn: 'Equipment & Utensils',
+        titleAr: 'المعدات والأدوات',
+        items: [
+          { id: 50, en: 'Equipment made of corrosion-resistant, food-grade materials', ar: 'المعدات مصنوعة من مواد مقاومة للتآكل وآمنة للأغذية' },
+          { id: 51, en: 'Thermometers are calibrated and functioning properly', ar: 'مقاييس الحرارة معايرة وتعمل بشكل صحيح' },
+          { id: 52, en: 'Refrigerators and freezers maintain correct temperatures', ar: 'الثلاجات والمجمدات تحافظ على درجات الحرارة الصحيحة' },
+          { id: 53, en: 'Temperature logs are recorded at least twice daily', ar: 'تسجيل سجلات درجة الحرارة مرتين يومياً على الأقل' },
+          { id: 54, en: 'Cooking equipment is maintained and cleaned regularly', ar: 'صيانة وتنظيف معدات الطهي بانتظام' },
+          { id: 55, en: 'Food contact surfaces are smooth and free from cracks', ar: 'أسطح ملامسة للأغذية ناعمة وخالية من التشققات' },
+        ]
+      },
+      {
+        id: 'traceability',
+        titleEn: 'Traceability & Documentation',
+        titleAr: 'التتبع والتوثيق',
+        items: [
+          { id: 56, en: 'Verifying chefs\' compliance with quality control records (defrost log, vegetable washing and sanitization log, frying oil inspection log, refrigerator and freezer temperature logs)', ar: 'التحقق من التزام الشيفات بسجلات مراقبة الجودة.                                                            (سجل الديفروست،سجل غسيل وتعقيم الخضار،سجل فحص زيت القلي،سجلات برودة الثلاجات والفريزرات)' },
+          { id: 57, en: 'Following up with chefs on submitting daily checklists to the WhatsApp group', ar: 'متابعة الشيفات في رفع لوائح التشييك يوميا على قروب الوتساب' },
+          { id: 58, en: 'Complete food traceability guide is available', ar: 'دليل تتبع الأغذية متاح وكامل' },
+          { id: 59, en: 'Traceability records kept for 180 days after expiry', ar: 'الاحتفاظ بسجلات التتبع 180 يوماً بعد انتهاء الصلاحية' },
+          { id: 60, en: 'Product coding identifies each batch and production date', ar: 'ترميز المنتجات لتحديد كل دفعة وتاريخ الإنتاج' },
+          { id: 61, en: 'Supplier approval records include certificates and specifications', ar: 'سجلات اعتماد الموردين تشمل الشهادات والمواصفات' },
+          { id: 62, en: 'All food handlers have valid health certificates', ar: 'جميع العاملين يحملون شهادات صحية سارية' },
+          { id: 63, en: 'HACCP plan is documented, approved, and regularly reviewed', ar: 'خطة HACCP موثقة ومعتمدة ومراجعتها بانتظام' },
+          { id: 64, en: 'Cleaning and sanitation logs are complete and up-to-date', ar: 'سجلات التنظيف والتعقيم كاملة ومحدثة' },
+          { id: 65, en: 'Temperature monitoring records are maintained and signed', ar: 'الاحتفاظ بسجلات مراقبة درجة الحرارة وتوثيقها' },
+        ]
+      },
+      {
+        id: 'water',
+        titleEn: 'Water Supply & Plumbing',
+        titleAr: 'إمداد المياه والسباكة',
+        items: [
+          { id: 66, en: 'Potable water supply is adequate and clean', ar: 'إمداد مياه الشرب كافٍ ونظيف' },
+          { id: 67, en: 'Water filters are installed, clean, and maintained', ar: 'تركيب فلاتر المياه وتنظيفها وصيانتها' },
+          { id: 68, en: 'No leaks in sewage supplies or connections', ar: 'عدم وجود تسربات في مواسير الصرف أو وصلاتها' },
+          { id: 69, en: 'Sewage holes are closed during working hours', ar: 'إغلاق فتحات الصرف أثناء ساعات العمل' },
+          { id: 70, en: 'Hand wash basins have soap, hot water, and drying devices', ar: 'أحواض غسل اليدين مزودة بالصابون والماء الساخن وأجهزة التجفيف' },
+        ]
+      },
+      {
+        id: 'allergen',
+        titleEn: 'Allergen Management',
+        titleAr: 'إدارة مسببات الحساسية',
+        items: [
+          { id: 71, en: 'Allergen information is complete on all product labels', ar: 'معلومات مسببات الحساسية كاملة على جميع ملصقات المنتجات' },
+          { id: 72, en: 'Separate preparation areas for allergen-free items', ar: 'مناطق تحضير منفصلة للأصناف الخالية من مسببات الحساسية' },
+          { id: 73, en: 'Dedicated utensils for allergen-free food preparation', ar: 'أدوات مخصصة لتحضير الأغذية الخالية من مسببات الحساسية' },
+          { id: 74, en: 'Staff trained on allergen awareness and cross-contamination prevention', ar: 'تدريب الموظفين على التوعية بمسببات الحساسية ومنع التلوث المتبادل' },
+        ]
+      },
+    ];
+
+    // ===== APP =====
+    function App() {
+      const [sections, setSections] = useState(() => 
+        inspectionData.map(s => ({ ...s, items: s.items.map(i => ({ ...i, answer: null, notes: '', photos: [] })) }))
+      );
+      const [expandedSections, setExpandedSections] = useState(new Set(['receiving']));
+      const [location, setLocation] = useState('');
+      const [inspectorName, setInspectorName] = useState('Chef Ayoub');
+      const [showReport, setShowReport] = useState(false);
+      const [showPhotos, setShowPhotos] = useState(false);
+      const [showInspectorModal, setShowInspectorModal] = useState(false);
+      const [activeTab, setActiveTab] = useState('all');
+
+      useEffect(() => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&accept-language=ar`);
+                const data = await response.json();
+                setLocation(data.display_name || `${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+              } catch {
+                setLocation(`${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+              }
+            },
+            () => setLocation('Manual entry required')
+          );
+        }
+      }, []);
+
+      const toggleSection = (id) => {
+        setExpandedSections(prev => {
+          const next = new Set(prev);
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+          return next;
+        });
+      };
+
+      const updateAnswer = (sectionId, itemId, answer) => {
+        setSections(prev => prev.map(s => {
+          if (s.id !== sectionId) return s;
+          return { ...s, items: s.items.map(i => i.id === itemId ? { ...i, answer: i.answer === answer ? null : answer } : i) };
+        }));
+      };
+
+      const updateNotes = (sectionId, itemId, notes) => {
+        setSections(prev => prev.map(s => {
+          if (s.id !== sectionId) return s;
+          return { ...s, items: s.items.map(i => i.id === itemId ? { ...i, notes } : i) };
+        }));
+      };
+
+      const addPhoto = (sectionId, itemId, photoUrl) => {
+        setSections(prev => prev.map(s => {
+          if (s.id !== sectionId) return s;
+          return { ...s, items: s.items.map(i => i.id === itemId ? { ...i, photos: [...i.photos, photoUrl].slice(0, 3) } : i) };
+        }));
+      };
+
+      const removePhoto = (sectionId, itemId, photoIndex) => {
+        setSections(prev => prev.map(s => {
+          if (s.id !== sectionId) return s;
+          return { ...s, items: s.items.map(i => i.id === itemId ? { ...i, photos: i.photos.filter((_, idx) => idx !== photoIndex) } : i) };
+        }));
+      };
+
+      const handleFileUpload = (sectionId, itemId, e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          if (ev.target?.result) addPhoto(sectionId, itemId, ev.target.result);
+        };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+      };
+
+      const getSectionStats = (section) => {
+        const total = section.items.length;
+        const answered = section.items.filter(i => i.answer !== null).length;
+        const yesCount = section.items.filter(i => i.answer === 'yes').length;
+        const noCount = section.items.filter(i => i.answer === 'no').length;
+        const naCount = section.items.filter(i => i.answer === 'na').length;
+        const applicable = section.items.filter(i => i.answer === 'yes' || i.answer === 'no').length;
+        const score = applicable > 0 ? Math.round((yesCount / applicable) * 100) : 0;
+        return { total, answered, yesCount, noCount, naCount, applicable, score };
+      };
+
+      const getOverallStats = () => {
+        let totalItems = 0, totalAnswered = 0, totalYes = 0, totalApplicable = 0;
+        sections.forEach(s => {
+          const stats = getSectionStats(s);
+          totalItems += stats.total;
+          totalAnswered += stats.answered;
+          totalYes += stats.yesCount;
+          totalApplicable += stats.applicable;
+        });
+        const overallScore = totalApplicable > 0 ? Math.round((totalYes / totalApplicable) * 100) : 0;
+        return { totalItems, totalAnswered, totalYes, totalApplicable, overallScore };
+      };
+
+      const getAllPhotos = () => {
+        const photos = [];
+        sections.forEach(section => {
+          section.items.forEach(item => {
+            item.photos.forEach((photo, idx) => {
+              photos.push({ photo, sectionId: section.id, sectionTitleEn: section.titleEn, sectionTitleAr: section.titleAr, itemId: item.id, itemEn: item.en, itemAr: item.ar, photoIndex: idx });
+            });
+          });
+        });
+        return photos;
+      };
+
+      const resetAll = () => {
+        if (confirm('Are you sure you want to reset all answers?')) {
+          setSections(inspectionData.map(s => ({ ...s, items: s.items.map(i => ({ ...i, answer: null, notes: '', photos: [] })) })));
+          setExpandedSections(new Set(['receiving']));
+        }
+      };
+
+      const expandAll = () => setExpandedSections(new Set(sections.map(s => s.id)));
+      const collapseAll = () => setExpandedSections(new Set());
+
+      const stats = getOverallStats();
+      const currentDate = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const allPhotos = getAllPhotos();
+
+      const getScoreColor = (score) => score >= 90 ? '#4ade80' : score >= 70 ? '#b0ae63' : '#ef4444';
+      const getScoreBg = (score) => score >= 90 ? 'bg-green-500' : score >= 70 ? 'bg-yellow-600' : 'bg-red-500';
+
+      const generateReportHTML = () => {
+        const overall = getOverallStats();
+        const time = new Date().toLocaleTimeString('en-GB');
+
+        let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>VERRA Report</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,sans-serif;background:#e8f5ee;color:#1a4d36;line-height:1.6}.container{max-width:1000px;margin:0 auto;padding:40px}.header{text-align:center;padding:30px 0;border-bottom:4px solid #145f41;margin-bottom:30px}.header h1{color:#145f41;font-size:28px;font-weight:700}.header h2{color:#64748b;font-size:18px;font-weight:500}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:30px;padding:20px;background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}.info-item{display:flex;gap:10px;font-size:14px}.info-item .label{font-weight:600;color:#475569;min-width:100px}.score-card{text-align:center;padding:25px;background:linear-gradient(135deg,#145f41 0%,#0f4d34 100%);color:white;border-radius:16px;margin-bottom:30px}.score-card .score-value{font-size:64px;font-weight:800}.section{background:white;border-radius:12px;margin-bottom:20px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1)}.section-header{background:#e8f5ee;padding:15px 20px;border-bottom:2px solid #c8ddd3;display:flex;justify-content:space-between;align-items:center}.section-header h3{color:#145f41;font-size:16px;font-weight:700}.item{padding:15px 20px;border-bottom:1px solid #e8f5ee}.item:last-child{border-bottom:none}.item-text .en{font-weight:500;font-size:14px}.item-text .ar{color:#64748b;font-size:13px;margin-top:4px;direction:rtl}.answer-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}.badge-yes{background:#dcfce7;color:#166534}.badge-no{background:#fee2e2;color:#991b1b}.badge-na{background:#e8f5ee;color:#475569}.badge-missing{background:#fef3c7;color:#92400e}.photos{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.photos img{width:120px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #c8ddd3}.notes{padding:10px;background:#fefce8;border-radius:8px;margin-top:10px;font-size:13px;color:#713f12;border-right:3px solid #b0ae63}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:30px 0}.summary-card{text-align:center;padding:20px;background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}.summary-card .number{font-size:32px;font-weight:700}.footer{text-align:center;padding:30px;color:#94a3b8;font-size:12px;margin-top:40px;border-top:1px solid #c8ddd3}@media print{body{background:white}.container{padding:20px}}</style></head><body><div class="container"><div class="header"><h1>VERRA</h1><h2>Food Safety & Quality Inspection Report</h2></div><div class="info-grid"><div class="info-item"><span class="label">Inspector:</span><span>${inspectorName}</span></div><div class="info-item"><span class="label">Date:</span><span>${currentDate} - ${time}</span></div><div class="info-item"><span class="label">Location:</span><span>${location || 'Not specified'}</span></div><div class="info-item"><span class="label">Total Items:</span><span>${overall.totalItems}</span></div></div><div class="score-card"><div class="score-value">${overall.overallScore}%</div><div>Overall Compliance Score</div></div><div class="summary"><div class="summary-card"><div class="number" style="color:#166534">${overall.totalYes}</div><div>Compliant</div></div><div class="summary-card"><div class="number" style="color:#991b1b">${overall.totalApplicable - overall.totalYes}</div><div>Non-Compliant</div></div><div class="summary-card"><div class="number" style="color:#475569">${overall.totalItems - overall.totalApplicable}</div><div>N/A</div></div></div>`;
+
+        sections.forEach(section => {
+          const sStats = getSectionStats(section);
+          const sScore = sStats.applicable > 0 ? Math.round((sStats.yesCount / sStats.applicable) * 100) : 0;
+          const sColor = sScore >= 90 ? '#166534' : sScore >= 70 ? '#92400e' : '#991b1b';
+
+          html += `<div class="section"><div class="section-header"><h3>${section.titleEn} / ${section.titleAr}</h3><span style="color:${sColor};font-weight:700;font-size:18px">${sScore}%</span></div>`;
+
+          section.items.forEach(item => {
+            const ans = item.answer;
+            const badgeClass = ans === 'yes' ? 'badge-yes' : ans === 'no' ? 'badge-no' : ans === 'na' ? 'badge-na' : 'badge-missing';
+            const badgeText = ans === 'yes' ? 'YES' : ans === 'no' ? 'NO' : ans === 'na' ? 'N/A' : 'NOT ANSWERED';
+
+            html += `<div class="item"><div class="item-text"><div class="en">${item.id}. ${item.en}</div><div class="ar">${item.ar}</div></div><span class="answer-badge ${badgeClass}">${badgeText}</span>`;
+            if (item.photos.length > 0) {
+              html += `<div class="photos">${item.photos.map(p => `<img src="${p}" alt="Evidence">`).join('')}</div>`;
+            }
+            if (item.notes) {
+              html += `<div class="notes">${item.notes}</div>`;
+            }
+            html += `</div>`;
+          });
+          html += `</div>`;
+        });
+
+        html += `<div class="footer"><p>VERRA Food Safety Inspection System</p><p>Generated on ${currentDate} at ${time}</p></div></div></body></html>`;
+        return html;
+      };
+
+      const downloadReport = () => {
+        const html = generateReportHTML();
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `VERRA_Inspection_${new Date().toISOString().split('T')[0]}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+
+      const printReport = () => {
+        const html = generateReportHTML();
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(html);
+          printWindow.document.close();
+          printWindow.focus();
+          setTimeout(() => printWindow.print(), 500);
+        }
+      };
+
+      const getFilteredSections = () => {
+        if (activeTab === 'all') return sections;
+        if (activeTab === 'pending') return sections.map(s => ({ ...s, items: s.items.filter(i => i.answer === null) })).filter(s => s.items.length > 0);
+        if (activeTab === 'completed') return sections.map(s => ({ ...s, items: s.items.filter(i => i.answer !== null) })).filter(s => s.items.length > 0);
+        return sections;
+      };
+
+      const filteredSections = getFilteredSections();
+
+      // ===== PHOTOS PAGE =====
+      if (showPhotos) {
+        return (
+          <div className="photos-page">
+            <div className="photos-header no-print">
+              <button onClick={() => setShowPhotos(false)} className="btn btn-secondary">← Back to Inspection</button>
+              <h2 className="photos-title">📷 All Photos / جميع الصور ({allPhotos.length})</h2>
+            </div>
+            {allPhotos.length === 0 ? (
+              <div className="no-photos">
+                <div className="no-photos-icon">📷</div>
+                <h3>No photos yet / لا توجد صور بعد</h3>
+                <p>Add photos to inspection items to see them here</p>
+              </div>
+            ) : (
+              <div className="photos-grid">
+                {allPhotos.map((photoItem, idx) => (
+                  <div key={idx} className="photo-card">
+                    <div className="photo-card-image">
+                      <img src={photoItem.photo} alt={`Photo ${idx + 1}`} />
+                      <button onClick={() => { removePhoto(photoItem.sectionId, photoItem.itemId, photoItem.photoIndex); }}
+                        className="photo-card-delete">🗑</button>
+                    </div>
+                    <div className="photo-card-info">
+                      <p className="section-name">{photoItem.sectionTitleEn}</p>
+                      <p dir="rtl">{photoItem.itemAr}</p>
+                      <p>Item #{photoItem.itemId}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // ===== REPORT PAGE =====
+      if (showReport) {
+        return (
+          <div className="report-overlay">
+            <div className="report-buttons no-print">
+              <button onClick={() => setShowReport(false)} className="btn btn-secondary">✕ Close</button>
+              <button onClick={printReport} className="btn btn-primary">🖨️ Print</button>
+              <button onClick={downloadReport} className="btn btn-primary">💾 Download</button>
+            </div>
+            <div className="report-content">
+              <div dangerouslySetInnerHTML={{ __html: generateReportHTML() }} />
+            </div>
+          </div>
+        );
+      }
+
+      // ===== MAIN PAGE =====
+      return (
+        <div>
+          <header className="header">
+            <div className="header-content">
+              <div className="header-left">
+                <h1>VERRA</h1>
+                <p>FOOD SAFETY & QUALITY INSPECTION / فحص سلامة وجودة الأغذية</p>
+              </div>
+              <div className="header-right">
+                <button onClick={() => setShowInspectorModal(true)}>
+                  👤 {inspectorName} ✨
+                </button>
+                <div className="date">📅 {currentDate}</div>
+                <div className="location">📍 {location || 'Detecting location...'}</div>
+              </div>
+            </div>
+          </header>
+
+          <div className="progress-bar">
+            <div className="progress-content">
+              <div className="progress-top">
+                <div className="progress-stats">
+                  <div className="progress-stat">✅ Progress: <span>{stats.totalAnswered}/{stats.totalItems}</span></div>
+                  <div className="progress-stat" style={{ color: getScoreColor(stats.overallScore) }}>📊 Score: <span>{stats.overallScore}%</span></div>
+                  <div className="progress-stat" style={{ color: '#b0ae63' }}>⏳ Remaining: <span>{stats.totalItems - stats.totalAnswered}</span></div>
+                </div>
+                <div className="progress-actions">
+                  <button onClick={resetAll} className="btn btn-danger">🔄 Reset</button>
+                  <button onClick={() => setShowReport(true)} className="btn btn-primary" disabled={stats.totalAnswered === 0}>📄 View Report</button>
+                </div>
+              </div>
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: `${stats.totalItems > 0 ? (stats.totalAnswered / stats.totalItems) * 100 : 0}%`, background: getScoreColor(stats.overallScore) }}></div>
+              </div>
+              {stats.totalAnswered < stats.totalItems && (
+                <div className="alert alert-warning">⚠️ {stats.totalItems - stats.totalAnswered} items remaining / بند متبقي</div>
+              )}
+              {stats.totalAnswered === stats.totalItems && stats.totalItems > 0 && (
+                <div className="alert alert-success">✅ All items completed! / تم إكمال جميع البنود!</div>
+              )}
+            </div>
+          </div>
+
+          <div className="tabs no-print">
+            <button onClick={() => setActiveTab('all')} className={`tab ${activeTab === 'all' ? 'active' : ''}`}>All</button>
+            <button onClick={() => setActiveTab('pending')} className={`tab ${activeTab === 'pending' ? 'active' : ''}`}>Pending ({stats.totalItems - stats.totalAnswered})</button>
+            <button onClick={() => setActiveTab('completed')} className={`tab ${activeTab === 'completed' ? 'active' : ''}`}>Completed ({stats.totalAnswered})</button>
+            <div className="tabs-spacer"></div>
+            <button onClick={() => setShowPhotos(true)} className="btn btn-secondary">📷 Photos ({allPhotos.length})</button>
+            <button onClick={expandAll} className="btn btn-secondary">▼ Expand</button>
+            <button onClick={collapseAll} className="btn btn-secondary">▲ Collapse</button>
+          </div>
+
+          <div className="container">
+            {filteredSections.map(section => {
+              const isExpanded = expandedSections.has(section.id);
+              const sStats = getSectionStats(section);
+              const scoreColor = getScoreColor(sStats.score);
+
+              return (
+                <div key={section.id} className="section">
+                  <div className="section-header" onClick={() => toggleSection(section.id)}>
+                    <div className="section-header-left">
+                      <div className="score-badge" style={{ background: scoreColor }}>{sStats.score}%</div>
+                      <div className="section-title">
+                        <h3>{section.titleEn}</h3>
+                        <p>{section.titleAr}</p>
+                      </div>
+                    </div>
+                    <div className="section-header-right">
+                      <div className="section-counts">
+                        <span className="count-yes">{sStats.yesCount} ✓</span>
+                        <span className="count-no">{sStats.noCount} ✗</span>
+                        <span className="count-na">{sStats.naCount} N/A</span>
+                      </div>
+                      <span className="section-progress">{sStats.answered}/{sStats.total}</span>
+                      <span className={`section-arrow ${isExpanded ? 'expanded' : ''}`}>▼</span>
+                    </div>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="items">
+                      {section.items.map(item => (
+                        <div key={item.id} className="item">
+                          <div className="item-content">
+                            <div className="item-main">
+                              <div className="item-text">
+                                <div className="item-en"><span className="item-id">#{item.id}</span>{item.en}</div>
+                                <div className="item-ar">{item.ar}</div>
+                              </div>
+                              <div className="notes-area">
+                                <textarea className="notes-input" placeholder="Notes / ملاحظات..." value={item.notes}
+                                  onChange={(e) => updateNotes(section.id, item.id, e.target.value)} rows={2} />
+                              </div>
+                              {item.photos.length > 0 && (
+                                <div className="photos-area">
+                                  <div className="photos-list">
+                                    {item.photos.map((photo, idx) => (
+                                      <div key={idx} className="photo-item">
+                                        <img src={photo} alt={`Photo ${idx + 1}`} />
+                                        <button onClick={() => removePhoto(section.id, item.id, idx)} className="photo-delete">×</button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            <div className="item-controls">
+                              <div className="answer-buttons">
+                                <button onClick={() => updateAnswer(section.id, item.id, 'yes')}
+                                  className={`answer-btn answer-btn-yes ${item.answer === 'yes' ? 'active' : ''}`}>✓ YES</button>
+                                <button onClick={() => updateAnswer(section.id, item.id, 'no')}
+                                  className={`answer-btn answer-btn-no ${item.answer === 'no' ? 'active' : ''}`}>✗ NO</button>
+                                <button onClick={() => updateAnswer(section.id, item.id, 'na')}
+                                  className={`answer-btn answer-btn-na ${item.answer === 'na' ? 'active' : ''}`}>− N/A</button>
+                              </div>
+                              {item.photos.length < 3 && (
+                                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                  <label className="photo-upload">
+                                    <input type="file" accept="image/*" capture="environment"
+                                      onChange={(e) => handleFileUpload(section.id, item.id, e)} />
+                                    <span className="photo-upload-label">
+                                      📷 Camera
+                                    </span>
+                                  </label>
+                                  <label className="photo-upload">
+                                    <input type="file" accept="image/*"
+                                      onChange={(e) => handleFileUpload(section.id, item.id, e)} />
+                                    <span className="photo-upload-label" style={{ background: '#f0fdf4', color: '#145f41' }}>
+                                      🖼️ Gallery
+                                    </span>
+                                  </label>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <button onClick={() => setShowReport(true)} className={`floating-score ${getScoreBg(stats.overallScore)}`}>
+            <span className="score-label">Score</span>
+            <span className="score-value">{stats.overallScore}%</span>
+          </button>
+
+          <footer className="footer">
+            <p>VERRA Food Safety Inspection System | نظام فيرا لفحص سلامة الأغذية</p>
+            <p className="copyright">© {new Date().getFullYear()} VERRA. All rights reserved.</p>
+          </footer>
+
+          {showInspectorModal && (
+            <div className="modal-overlay" onClick={() => setShowInspectorModal(false)}>
+              <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <h3 className="modal-title">👤 Inspector Settings / إعدادات المفتش</h3>
+                <label style={{ display: 'block', fontSize: '14px', color: '#64748b', marginBottom: '8px' }}>Inspector Name / اسم المفتش</label>
+                <input type="text" value={inspectorName} onChange={(e) => setInspectorName(e.target.value)}
+                  className="modal-input" placeholder="Enter name..." />
+                <div className="modal-actions">
+                  <button onClick={() => setShowInspectorModal(false)} className="btn btn-primary">Save / حفظ</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
